@@ -7,6 +7,7 @@ require 'base64'
 require 'rubygems'
 require 'active_support/core_ext'
 require 'json'
+require 'httpclient'
 
 require 'sugarcrm/session'
 require 'sugarcrm/module_methods'

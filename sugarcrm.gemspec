@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "sugarcrm"
-  s.version = "0.9.18"
+  s.version = "0.10.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Carl Hicks", "David Sulc"]
@@ -163,6 +163,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_dependency(%q<httpclient>, [">= 2.2.5"])
     end
   else
     s.add_dependency(%q<activesupport>, [">= 2.3.10"])
@@ -171,6 +172,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<shoulda>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+    s.add_dependency(%q<httpclient>, [">= 2.2.5"])
   end
 end
 

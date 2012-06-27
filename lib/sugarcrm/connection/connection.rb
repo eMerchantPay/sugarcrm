@@ -4,7 +4,7 @@ module SugarCRM; class Connection
   # Set this to filter out debug output on a certain method (i.e. get_modules, or get_fields)
   DONT_SHOW_DEBUG_FOR = []
   RESPONSE_IS_NOT_JSON = [:get_user_id, :get_user_team_id]
-  
+
   attr :url, true
   attr :user, false
   attr :pass, false
@@ -15,8 +15,8 @@ module SugarCRM; class Connection
   attr :request, true
   attr :response, true
   attr :errors, true
-  
-  # This is the singleton connection class. 
+
+  # This is the singleton connection class.
   def initialize(url, user, pass, options={})
     @options  = {
       :debug => false,
@@ -33,19 +33,19 @@ module SugarCRM; class Connection
     login!
     self
   end
-  
+
   # Check to see if we are logged in
   def logged_in?
     connect! unless connected?
     @sugar_session_id ? true : false
   end
-  
+
   # Login
   def login!
     @sugar_session_id = login["id"]
     raise SugarCRM::LoginError, "Invalid Login" unless logged_in?
   end
-  
+
   def logout
     logout
     @sugar_session_id = nil
@@ -54,43 +54,27 @@ module SugarCRM; class Connection
   # Check to see if we are connected
   def connected?
     return false unless @connection
-    return false unless @connection.started?
     true
   end
-  
+
   # Connect
   def connect!
-    @connection = Net::HTTP.new(@url.host, @url.port)
-    if @url.scheme == "https"
-      @connection.use_ssl = true
-      @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    end
-
-    # Ruby 1.9.3 will throw an error if server does not recognize
-    # SSLv2 hello message - http://bugs.ruby-lang.org/issues/5110
-    # So catch OpenSSL::SSL::SSLError and set version to SSLv3 and
-    # try again
-    begin
-      @connection.start
-    rescue OpenSSL::SSL::SSLError 
-      @connection.ssl_version="SSLv3"
-      @connection.start
-    end
+    @connection = HTTPClient.new
   end
   alias :reconnect! :connect!
-  
+
   # Send a request to the Sugar Instance
   def send!(method, json, max_retry=3)
     if max_retry == 0
       raise SugarCRM::RetryLimitExceeded, "SugarCRM::Connection Errors: \n#{@errors.reverse.join "\n\s\s"}"
     end
     @request  = SugarCRM::Request.new(@url, method, json, @options[:debug])
-    # Send Ze Request
+    # Send Ze Reques
     begin
       if @request.length > 3900
-        @response = @connection.post(@url.path, @request)
+        @response = @connection.post(@url, @request)
       else
-        @response = @connection.get(@url.path.dup + "?" + @request.to_s)
+        @response = @connection.get(@url,  @request)
       end
       return handle_response
     # Timeouts are usually a server side issue
@@ -110,27 +94,27 @@ module SugarCRM; class Connection
       # Update the session id in the request that we want to retry.
       json.gsub!(old_session, @sugar_session_id)
       send!(method, json, max_retry.pred)
-    end    
+    end
   end
   alias :retry! :send!
-  
+
   def debug=(debug)
     options[:debug] = debug
   end
-  
+
   def debug?
     options[:debug]
   end
-  
+
   private
-  
+
   def handle_response
-    case @response
-    when Net::HTTPOK 
+    case @response.status
+    when 200
       return process_response
-    when Net::HTTPNotFound
+    when 404
       raise SugarCRM::InvalidSugarCRMUrl, "#{@url} is invalid"
-    when Net::HTTPInternalServerError
+    when 500
       raise SugarCRM::InvalidRequest, "#{@request} is invalid"
     else
       if @options[:debug]
@@ -150,19 +134,19 @@ module SugarCRM; class Connection
       return @response.body
     end
   end
-  
+
   def resolve_url
     # Appends the rest.php path onto the end of the URL if it's not included
     if @url.path !~ /rest.php$/
       @url.path += URL
     end
   end
-  
-  # Complain if our body is empty.  
+
+  # Complain if our body is empty.
   def empty_body?
     raise SugarCRM::EmptyResponse unless @response.body
   end
-  
+
   # Some methods are dumb and don't return a JSON Response
   def response_contains_json?
     if RESPONSE_IS_NOT_JSON.include? @request.method
@@ -194,17 +178,17 @@ module SugarCRM; class Connection
   # something like:
   # {"name"=>"Invalid Session ID",
   #  "number"=>11,
-  #  "description"=>"The session ID is invalid"}  
+  #  "description"=>"The session ID is invalid"}
   def invalid_session?(json)
     return false unless json["name"]
     return false if @request.method == :logout
     raise SugarCRM::InvalidSession if json["name"] == "Invalid Session ID"
   end
-  
+
   def zero_results?(json)
     json["result_count"] == 0
   end
-  
+
   # Filter debugging on REALLY BIG responses
   def nice_debugging_for(json)
     if @options[:debug] && !(DONT_SHOW_DEBUG_FOR.include? @request.method)
@@ -213,5 +197,5 @@ module SugarCRM; class Connection
       puts "\n"
     end
   end
-  
+
 end; end

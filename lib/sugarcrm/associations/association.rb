@@ -22,12 +22,12 @@ module SugarCRM
       @link_field = link_field
       @attributes = owner.link_fields[link_field]
       @relationship = relationship_for(@attributes["relationship"])
-      @target = resolve_target
       @proxy_methods = define_methods if @options[:define_methods?]
+      @target = resolve_target
       @cardinality = resolve_cardinality
       self
     end
-    
+
     # Returns true if the association includes an attribute that matches
     # the provided string
     def include?(attribute)
@@ -85,11 +85,22 @@ module SugarCRM
         klass = @relationship[:target][:name].singularize.camelize
         return namespace.const_get(klass) if namespace.const_defined? klass
       end
+
+      if @proxy_methods.is_a? Array
+        if @proxy_methods.last.include? "_1"
+          return namespace.const_get(@proxy_methods.last[0..-3].camelize) if @proxy_methods.last != "securitygroups_1"
+          return namespace.const_get("SecurityGroup")
+        end
+
+        if @proxy_methods.include? "acl_roles"
+          return namespace.const_get("ACLRole")
+        end
+      end
       false
     end
-    
+
     # Defines methods for accessing the association target on the owner class.
-    # If the link_field name includes the owner class name, it is stripped before 
+    # If the link_field name includes the owner class name, it is stripped before
     # creating the method.  If this occurs, we also create an alias to the stripped
     # method using the full link_field name.
     def define_methods
