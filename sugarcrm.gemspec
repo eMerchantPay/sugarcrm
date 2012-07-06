@@ -4,13 +4,13 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = "sugarcrm"
-  s.version = "0.10.0"
+  s.name = "sugarcrm_emp"
+  s.version = "0.10.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Carl Hicks", "David Sulc"]
+  s.authors = ["Carl Hicks", "David Sulc", "Dimitar Kostov"]
   s.date = "2011-12-13"
-  s.email = "carl.hicks@gmail.com"
+  s.email = "dimitar@emerchantpay.com"
   s.executables = ["sugarcrm"]
   s.extra_rdoc_files = [
     "LICENSE",
@@ -111,7 +111,7 @@ Gem::Specification.new do |s|
     "test/test_session.rb",
     "test/test_sugarcrm.rb"
   ]
-  s.homepage = "http://github.com/chicks/sugarcrm"
+  s.homepage = "http://github.com/eMerchantPay/sugarcrm"
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.11"
   s.summary = "A less clunky way to interact with SugarCRM via REST."
@@ -153,6 +153,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<activesupport>, [">= 2.3.10"])
       s.add_runtime_dependency(%q<i18n>, [">= 0"])
       s.add_runtime_dependency(%q<json>, [">= 0"])
+      s.add_dependency(%q<httpclient>, [">= 2.2.5"])
       s.add_development_dependency(%q<shoulda>, [">= 0"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
