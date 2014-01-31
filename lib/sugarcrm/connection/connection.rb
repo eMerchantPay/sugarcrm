@@ -71,11 +71,7 @@ module SugarCRM; class Connection
     @request  = SugarCRM::Request.new(@url, method, json, @options[:debug])
     # Send Ze Reques
     begin
-      if @request.length > 3900
-        @response = @connection.post(@url, @request)
-      else
-        @response = @connection.get(@url,  @request)
-      end
+      @response = @connection.post(@url, @request)
       return handle_response
     # Timeouts are usually a server side issue
     rescue Timeout::Error => error

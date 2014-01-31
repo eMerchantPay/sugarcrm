@@ -78,7 +78,7 @@ module SugarCRM
       # Use the link_field attribute "module"
       if @attributes["module"].length > 0
         module_name = SugarCRM::Module.find(@attributes["module"], @owner.class.session)
-        return namespace.const_get(module_name.klass) if namespace.const_defined? module_name.klass
+        return namespace.const_get(module_name.klass) if module_name && namespace.const_defined?(module_name.klass)
       end
       # Use the "relationship" target
       if @attributes["relationship"].length > 0
@@ -87,8 +87,7 @@ module SugarCRM
       end
 
       if @proxy_methods.is_a? Array
-        if @proxy_methods.last.include? "_1"
-          return namespace.const_get(@proxy_methods.last[0..-3].camelize) if @proxy_methods.last != "securitygroups_1"
+        if @proxy_methods.include? "securitygroups"
           return namespace.const_get("SecurityGroup")
         end
 
