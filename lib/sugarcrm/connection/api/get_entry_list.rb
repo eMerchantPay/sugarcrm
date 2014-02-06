@@ -8,7 +8,7 @@ module SugarCRM; class Connection
       :offset => '', 
       :fields => [], 
       :link_fields => [], 
-      :limit => '', 
+      :limit => '100000', 
       :deleted => 0
     }.merge! opts
 
